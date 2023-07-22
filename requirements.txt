@@ -5,11 +5,11 @@ matplotlib>=3.3
 pdoc3>=0.10
 hydra-core==1.2.0
 omegaconf==2.2.3
-torch==1.11.0+cu113
-torchvision==0.12.0+cu113
+# torch==1.11.0+cu113
+# torchvision==0.12.0+cu113
 scikit-image==0.19.3
 pycocotools>=2.0
-jaxlib[cuda112]==0.3.25
+jaxlib[cuda117]==0.3.25
 jax==0.3.25
 pyyaml==6.0
 typing-extensions==4.3.0
