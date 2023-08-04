@@ -31,10 +31,13 @@ _SILK_NMS = 0  # NMS radius, 0 = disabled
 _SILK_BORDER = 0  # remove detection on border, 0 = disabled
 _SILK_THRESHOLD = 1.0  # keypoint score thresholding, if # of keypoints is less than provided top-k, then will add keypoints to reach top-k value, 1.0 = disabled
 _SILK_TOP_K = 10000  # minimum number of best keypoints to output, could be higher if threshold specified above has low value
-_SILK_DEFAULT_OUTPUT = (  # outputs required when running the model
-    "dense_positions",
-    "normalized_descriptors",
-    "probability",
+# _SILK_DEFAULT_OUTPUT = (  # outputs required when running the model
+#     "dense_positions",
+#     "normalized_descriptors",
+#     "probability",
+# )
+_SILK_DEFAULT_OUTPUT = (
+    "sparse_positions", "sparse_descriptors", "probability"
 )
 _SILK_SCALE_FACTOR = 1.41  # scaling of descriptor output, do not change
 _SILK_BACKBONE = ParametricVGG(
@@ -87,6 +90,7 @@ class SiLK:
             eval=True,
         )
         self.model = model
+        self.coordinate_mapping_composer = self.model.coordinate_mapping_composer
 
     def to(self, device, *args, **kwargs):
         self.model = self.model.to(device, *args, **kwargs)

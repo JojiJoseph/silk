@@ -4,4 +4,4 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from silk.common import SiLK, matcher as Matcher
+from silk.common import SiLK, matcher as Matcher, load_images
