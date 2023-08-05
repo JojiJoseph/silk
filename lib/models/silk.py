@@ -50,6 +50,13 @@ def matcher(
             distance_fn=partial(compute_dist, dist_type="cosine"),
             return_distances=return_distances,
         )
+    elif postprocessing == "mnn-ratio-test":
+        return partial(
+            mutual_nearest_neighbor,
+            match_fn=partial(match_descriptors, max_ratio=threshold),
+            distance_fn=partial(compute_dist, dist_type="dot"),
+            return_distances=return_distances,
+        )
     elif postprocessing == "double-softmax":
         return partial(
             mutual_nearest_neighbor,

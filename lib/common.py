@@ -30,14 +30,14 @@ Matcher = matcher
 _SILK_NMS = 0  # NMS radius, 0 = disabled
 _SILK_BORDER = 0  # remove detection on border, 0 = disabled
 _SILK_THRESHOLD = 1.0  # keypoint score thresholding, if # of keypoints is less than provided top-k, then will add keypoints to reach top-k value, 1.0 = disabled
-_SILK_TOP_K = 10000  # minimum number of best keypoints to output, could be higher if threshold specified above has low value
+_SILK_TOP_K = 1000  # minimum number of best keypoints to output, could be higher if threshold specified above has low value
 # _SILK_DEFAULT_OUTPUT = (  # outputs required when running the model
 #     "dense_positions",
 #     "normalized_descriptors",
 #     "probability",
 # )
 _SILK_DEFAULT_OUTPUT = (
-    "sparse_positions", "sparse_descriptors", "probability"
+    "sparse_positions", "normalized_descriptors", "probability"
 )
 _SILK_SCALE_FACTOR = 1.41  # scaling of descriptor output, do not change
 _SILK_BACKBONE = ParametricVGG(
@@ -57,6 +57,7 @@ def load_images(*paths, as_gray=True, device=torch.device("cpu")):
     if not as_gray:
         images = images.permute(0, 3, 1, 2)
         images = images / 255.0
+        # images = 2.0 * (images-0.5)
     else:
         images = images.unsqueeze(1)  # add channel dimension
     return images
@@ -64,9 +65,10 @@ def load_images(*paths, as_gray=True, device=torch.device("cpu")):
 
 
 class SiLK:
-    def __init__(self, default_outputs=_SILK_DEFAULT_OUTPUT,device=_DEVICE, *args, **kwargs) -> None:
+    def __init__(self, default_outputs=_SILK_DEFAULT_OUTPUT,device=_DEVICE,detection_top_k=_SILK_TOP_K, *args, **kwargs) -> None:
         # super().__init__(*args, **kwargs)
         # print("Here")
+        self.checkpoint_path = cached_path("https://dl.fbaipublicfiles.com/silk/assets/models/silk/analysis/alpha/pvgg-4.ckpt")
         self.checkpoint_path = cached_path("https://dl.fbaipublicfiles.com/silk/assets/models/silk/coco-rgb-aug.ckpt")
         # print("Here2")
         # load model
@@ -74,7 +76,7 @@ class SiLK:
             in_channels=1,
             backbone=deepcopy(_SILK_BACKBONE),
             detection_threshold=_SILK_THRESHOLD,
-            detection_top_k=_SILK_TOP_K,
+            detection_top_k=detection_top_k,
             nms_dist=_SILK_NMS,
             border_dist=_SILK_BORDER,
             default_outputs= default_outputs,
@@ -89,7 +91,8 @@ class SiLK:
             freeze=True,
             eval=True,
         )
-        self.model = model
+        self.model = model#.eval()
+        self.model.eval()
         self.coordinate_mapping_composer = self.model.coordinate_mapping_composer
 
     def to(self, device, *args, **kwargs):
